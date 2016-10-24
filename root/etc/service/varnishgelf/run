@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+NAME=varnishgelf
+FORMAT=""
+DAEMON=/usr/bin/${NAME}
+DAEMON_OPTS="-v 2 -N /etc/vha-agent/nodes.conf -m ${VARNISH_NODE_NAME} -s /var/lib/vha-agent/vha-status"
+PID_FILE="/var/run/${NAME}.pid"
+DESC="Varnish HA Agent Server"
+
+if [ -f /etc/default/${NAME} ]; then
+  # Include configuration
+  . /etc/default/${NAME}
+fi
+
+
+install -o nobody -d $(dirname ${PID_FILE})
+
+echo "Starting ${DESC}"
+
+${DAEMON} ${DAEMON_OPTS} -P ${PID_FILE} -D;
+sleep 20; # Wait for the daemon to start and write PID to the PID file
+
+PID=$(cat ${PID_FILE})
+echo "${DESC} started with PID: $PID";
+
+trap "echo Reloading ${DESC}; /etc/service/${NAME}/reload;" SIGHUP
+trap "echo Stopping ${DESC}; /etc/service/${NAME}/restart && exit 0" SIGTERM SIGINT
+
+while true; do # Iterate to keep job running.
+    ps -p ${PID} > /dev/null
+    if [ $? == "1" ]; then
+        echo "Process got killed, exiting script..."
+        break;
+    fi
+    sleep 1 # Wake up to handle signals
+done
+

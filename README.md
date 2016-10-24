@@ -1,4 +1,4 @@
-#json2gelf
+#json2gelf Docker container
 
 ##Description
 
@@ -7,15 +7,22 @@ Gets JSON lines from stdin and forward it as GELF packet.
 ##Compilation
 
 ```
-make clean
-make
+docker build -t varnishgelf .
 ```
 
 ##Usage
 
-###Help
+```
+docker run -dt --name=varnishgelf -v /var/lib/varnish:/var/lib/varnish --net=host
+```
+
+###Environment variables
 
 ```
+GELF_HOST = 127.0.0.1
+GELF_PORT = 12345
+NO_VALIDATE_JSON = no
+
 $ ./json2gelf --help
 
 Usage: json2gelf [OPTION...]
@@ -36,17 +43,4 @@ for any corresponding short options.
 Report bugs to <gregory@siwhine.net>.
 ```
 
-
-###Helper scripts
-
-
-Some scripts are already in the [scripts folder](scripts), but you just need to pipe valid json packets to it.
-
-```
-./scripts/varnish2json|./json2gelf
-```
-
-##Warnings
-
-- Logstash currently has a bug making the JSON parser crash if JSON is badly formated, if using logstash, please leave json-valiation enabled. [Issue link](https://github.com/logstash-plugins/logstash-input-gelf/pull/27)
 
