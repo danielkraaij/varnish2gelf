@@ -1,0 +1,22 @@
+version: '2'
+services:
+  www:
+    image: nginx:alpine
+
+  varnish:
+    image: webdevops/varnish
+    hostname: varnishcontainer
+    environment:
+      - VARNISH_BACKEND_HOST=www
+    links:
+      - www
+    ports:
+      - 8080:80
+    volumes:
+      - /var/lib/varnish
+
+  varnish2gelf:
+    image: varnish2gelf
+    hostname: varnishcontainer
+    volumes_from:
+      - varnish
