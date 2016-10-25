@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-NAME=varnishgelf
+NAME=varnishncsa
 FORMAT=""
 DAEMON=/usr/bin/${NAME}
-DAEMON_OPTS="-v 2 -N /etc/vha-agent/nodes.conf -m ${VARNISH_NODE_NAME} -s /var/lib/vha-agent/vha-status"
+DAEMON_OPTS=""
 PID_FILE="/var/run/${NAME}.pid"
-DESC="Varnish HA Agent Server"
+DESC="Varnish 2 Gelf"
 
 if [ -f /etc/default/${NAME} ]; then
   # Include configuration
@@ -17,7 +17,7 @@ install -o nobody -d $(dirname ${PID_FILE})
 
 echo "Starting ${DESC}"
 
-${DAEMON} ${DAEMON_OPTS} -P ${PID_FILE} -D;
+${DAEMON} -P ${PID_FILE} ${DAEMON_OPTS};
 sleep 20; # Wait for the daemon to start and write PID to the PID file
 
 PID=$(cat ${PID_FILE})
